@@ -200,8 +200,8 @@ function add_options(...) end
 ---@param ... string Package names
 function add_packages(...) end
 
---- Add imports for scripts
----@param ... string Import patterns (e.g., "core.base.option")
+--- Add imports for scripts (pre-imports modules for use in on_*/before_*/after_* callbacks)
+---@param ... string Import patterns (e.g., "core.base.option", "core.base.task")
 function add_imports(...) end
 
 --- Add language standards
@@ -798,16 +798,22 @@ function has_package(name) end
 function has_tool(name) end
 
 --=============================================================================
--- Script Context - Builtin Functions (available in on_*, before_*, after_*)
+-- Script/Sandbox Context - Builtin Functions
+-- ONLY available inside on_*, before_*, after_* callbacks.
+-- NOT available at the top-level of xmake.lua.
 --=============================================================================
+
+--- Note: `require()` is NOT available in xmake at all (neither top-level nor callbacks).
+--- Use `import()` inside callbacks, or `includes()` at top-level to load other xmake.lua files.
+--- Use `add_moduledirs()` at top-level to register custom module directories for `import()`.
 
 --- Get the current target instance
 ---@return xmake_target_target
 function target() end
 
---- Import a module
+--- Import a module (sandbox only; use `add_moduledirs()` to register custom module paths)
 ---@param name string Module name (e.g., "core.base.option")
----@param opt? table Options {inherit = boolean, alias = string}
+---@param opt? table Options {inherit = boolean, alias = string, anonymous = boolean, always_build = boolean}
 ---@return any Imported module
 function import(name, opt) end
 
@@ -829,26 +835,520 @@ function printf(...) end
 function warn(...) end
 
 --=============================================================================
--- Builtin Sandbox Modules (available in xmake.lua)
+-- Builtin Interpreter Modules (available in xmake.lua top-level)
+-- These are loaded from core/sandbox/modules/interpreter/*.lua
 --=============================================================================
 
 ---@class xmake_os_module
 os = {}
 
+---@return string
+function os.term() end
+
+---@return string
+function os.host() end
+
+---@return string
+function os.arch() end
+
+---@return string
+function os.subhost() end
+
+---@return string
+function os.subarch() end
+
+---@param format string
+---@param ... any
+---@return string
+function os.date(format, ...) end
+
+---@return number
+function os.time() end
+
+---@param filepath string
+---@return number
+function os.mtime(filepath) end
+
+---@return number
+function os.mclock() end
+
+---@param name string
+---@return string|nil
+function os.getenv(name) end
+
+---@param dir string
+---@return boolean
+function os.isdir(dir) end
+
+---@param filepath string
+---@return boolean
+function os.isfile(filepath) end
+
+---@param path string
+---@return boolean
+function os.exists(path) end
+
+---@return string
+function os.curdir() end
+
+---@return string
+function os.tmpdir() end
+
+---@param name string
+---@return any
+function os.cpuinfo(name) end
+
+---@return number
+function os.default_njob() end
+
+---@param filepath string
+---@return number
+function os.filesize(filepath) end
+
+---@return string
+function os.programdir() end
+
+---@return string
+function os.programfile() end
+
+---@return string
+function os.projectdir() end
+
+---@return string
+function os.projectfile() end
+
+---@param pattern string
+---@param ... any
+---@return string[]
+function os.files(pattern, ...) end
+
+---@param pattern string
+---@param ... any
+---@return string[]
+function os.dirs(pattern, ...) end
+
+---@param pattern string
+---@param ... any
+---@return string[]
+function os.filedirs(pattern, ...) end
+
+---@return string
+function os.scriptdir() end
+
 ---@class xmake_path_module
 path = {}
+
+---@param p string
+---@return string
+function path.unix(p) end
+
+---@param p string
+---@return string
+function path.cygwin(p) end
+
+---@param p string
+---@param opt? table
+---@return string
+function path.translate(p, opt) end
+
+---@param p string
+---@return string
+function path.normalize(p) end
+
+---@param p string
+---@param sep? string
+---@return string
+function path.directory(p, sep) end
+
+---@param p string
+---@param rootdir? string
+---@return string
+function path.absolute(p, rootdir) end
+
+---@param p string
+---@param rootdir? string
+---@return string
+function path.relative(p, rootdir) end
+
+---@param p string
+---@param sep? string
+---@return string
+function path.filename(p, sep) end
+
+---@param p string
+---@return string
+function path.basename(p) end
+
+---@param p string
+---@param level? number
+---@return string
+function path.extension(p, level) end
+
+---@param p string
+---@param ... string
+---@return string
+function path.join(p, ...) end
+
+---@param p string
+---@return string[]
+function path.split(p) end
+
+---@return string
+function path.sep() end
+
+---@return string
+function path.envsep() end
+
+---@param env_path string
+---@return string[]
+function path.splitenv(env_path) end
+
+---@param paths string[]
+---@param envsep? string
+---@return string
+function path.joinenv(paths, envsep) end
+
+---@param p string
+---@return boolean
+function path.islastsep(p) end
+
+---@param pattern string
+---@return string
+function path.pattern(pattern) end
+
+---@param p string
+---@param transform? fun(string):string
+---@return table
+function path.new(p, transform) end
+
+---@param p any
+---@return boolean
+function path.instance_of(p) end
 
 ---@class xmake_string_module
 string = {}
 
+---@param format string
+---@param ... any
+---@return string
+function string.tryformat(format, ...) end
+
+---@param pattern string
+---@param brackets? string
+---@return string
+function string.ipattern(pattern, brackets) end
+
+---@param object any
+---@param deflate? boolean
+---@return string
+function string.dump(object, deflate) end
+
+---@param object any
+---@param opt? table
+---@return string
+function string.serialize(object, opt) end
+
+---@param format string
+---@param ... any
+---@return string
+function string.vformat(format, ...) end
+
 ---@class xmake_table_module
 table = {}
+
+---@param ... any
+---@return table
+function table.join(...) end
+
+---@param self table
+---@param ... any
+---@return table
+function table.join2(self, ...) end
+
+---@param ... any
+---@return table
+function table.shallow_join(...) end
+
+---@param self table
+---@param ... any
+---@return table
+function table.shallow_join2(self, ...) end
+
+---@param array table
+---@param i number
+---@param j number
+function table.swap(array, i, j) end
+
+---@param array table
+---@param ... any
+---@return table
+function table.append(array, ...) end
+
+---@param self table
+---@param depth? number
+---@return table
+function table.clone(self, depth) end
+
+---@param copied? table
+---@return table
+function table.copy(copied) end
+
+---@param self table
+---@param copied? table
+function table.copy2(self, copied) end
+
+---@param ... table
+---@return table
+function table.inherit(...) end
+
+---@param self table
+---@param ... table
+---@return table
+function table.inherit2(self, ...) end
+
+---@param self table
+---@param first? number
+---@param last? number
+---@param step? number
+---@return table
+function table.slice(self, first, last, step) end
+
+---@param array any
+---@return boolean
+function table.is_array(array) end
+
+---@param dict any
+---@return boolean
+function table.is_dictionary(dict) end
+
+---@param t table
+---@param arg1 any
+---@param arg2? any
+---@param ... any
+---@return boolean
+function table.contains(t, arg1, arg2, ...) end
+
+---@param iterator fun():any
+---@param state? any
+---@param var? any
+---@return table
+function table.to_array(iterator, state, var) end
+
+---@param array any
+---@return any
+function table.unwrap(array) end
+
+---@param value any
+---@return table
+function table.wrap(value) end
+
+---@param value any
+---@return table
+function table.wrap_lock(value) end
+
+---@param value any
+---@return table
+function table.wrap_unlock(value) end
+
+---@param array table
+---@param barrier? fun(v:any):boolean
+---@return table
+function table.unique(array, barrier) end
+
+---@param array table
+---@param barrier? fun(v:any):boolean
+---@return table
+function table.reverse_unique(array, barrier) end
+
+---@param ... any
+---@return table
+function table.pack(...) end
+
+---@param tbl table
+---@return any[]
+function table.keys(tbl) end
+
+---@param tbl table
+---@param callback? fun(a:any,b:any):boolean
+---@return any[]
+function table.orderkeys(tbl, callback) end
+
+---@param t table
+---@param callback? fun(a:any,b:any):boolean
+---@return fun():any,any
+function table.orderpairs(t, callback) end
+
+---@param tbl table
+---@return any[]
+function table.values(tbl) end
+
+---@param tbl table
+---@param mapper fun(v:any):any
+---@return table
+function table.map(tbl, mapper) end
+
+---@param arr table
+---@param mapper fun(v:any):any
+---@return table
+function table.imap(arr, mapper) end
+
+---@param arr table
+---@return table
+function table.reverse(arr) end
+
+---@param tbl table
+---@param pred fun(k:any,v:any):boolean
+---@return table
+function table.remove_if(tbl, pred) end
+
+---@param tbl table
+---@return boolean
+function table.empty(tbl) end
+
+---@param tbl table
+---@param value any
+---@return any|nil
+function table.find(tbl, value) end
+
+---@param tbl table
+---@param pred fun(v:any):boolean
+---@return any|nil
+function table.find_if(tbl, pred) end
+
+---@param tbl table
+---@param value any
+---@return any|nil
+function table.find_first(tbl, value) end
+
+---@param tbl table
+---@param pred fun(v:any):boolean
+---@return any|nil
+function table.find_first_if(tbl, pred) end
 
 ---@class xmake_io_module
 io = {}
 
+---@param filepath string
+---@param opt? table
+---@return fun():string|nil
+function io.lines(filepath, opt) end
+
+---@param filepath string
+---@param opt? table
+---@return string|nil
+function io.readfile(filepath, opt) end
+
+---@param fmt? string
+---@param opt? table
+---@return string|nil
+function io.read(fmt, opt) end
+
+---@return boolean
+function io.readable() end
+
+---@param ... any
+function io.write(...) end
+
+---@param ... any
+function io.print(...) end
+
+---@param ... any
+function io.printf(...) end
+
+---@return boolean
+function io.flush() end
+
+---@param filepath string
+---@param data string
+---@param opt? table
+function io.writefile(filepath, data, opt) end
+
+---@param file file*
+---@return boolean
+function io.isatty(file) end
+
+---@param filepath string
+---@return file*|nil
+function io.stdfile(filepath) end
+
+---@param filepath string
+---@param mode? string
+---@param opt? table
+---@return file*|nil
+function io.open(filepath, mode, opt) end
+
+---@param filepath string
+---@return table|nil
+function io.openlock(filepath) end
+
+---@param file file*
+---@return boolean
+function io.close(file) end
+
+---@param filepath string
+---@param object any
+---@param opt? table
+function io.save(filepath, object, opt) end
+
+---@param filepath string
+---@param opt? table
+---@return any
+function io.load(filepath, opt) end
+
+---@param filepath string
+---@param pattern string
+---@param replace string
+---@param opt? table
+---@return string, number
+function io.gsub(filepath, pattern, replace, opt) end
+
+---@param filepath string
+---@param pattern string
+---@param replace string
+---@param opt? table
+---@return string, number
+function io.replace(filepath, pattern, replace, opt) end
+
+---@param filepath string
+---@param lineidx number
+---@param text string
+---@param opt? table
+---@return string
+function io.insert(filepath, lineidx, text, opt) end
+
+---@param filepath string
+---@param linecount? number
+---@param opt? table
+function io.cat(filepath, linecount, opt) end
+
+---@param filepath string
+---@param linecount? number
+---@param opt? table
+function io.tail(filepath, linecount, opt) end
+
 ---@class xmake_math_module
 math = {}
+
+---@type number
+math.nan = 0/0
+
+---@type number
+math.e = 2.718281828459045
+
+---@type number
+math.inf = 1/0
+
+---@param self number
+---@return boolean
+function math:isint() end
+
+---@param self number
+---@return number|false
+function math:isinf() end
+
+---@param self number
+---@return boolean
+function math:isnan() end
 
 ---@class xmake_pairs_module
 pairs = pairs
@@ -866,7 +1366,8 @@ tostring = tostring
 type = type
 
 ---@class xmake_print_module
-print = print
+---@param ... any
+function print(...) end
 
 --=============================================================================
 -- Common Aliases for Type Hints
