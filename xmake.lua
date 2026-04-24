@@ -1350,24 +1350,20 @@ function math:isinf() end
 ---@return boolean
 function math:isnan() end
 
----@class xmake_pairs_module
+---@type fun(t: table): fun(t: table, k?: any): any, any
 pairs = pairs
 
----@class xmake_ipairs_module
+---@type fun(t: table): fun(t: table, i?: number): number, any
 ipairs = ipairs
 
----@class xmake_tonumber_module
+---@type fun(v: any, base?: integer): number?
 tonumber = tonumber
 
----@class xmake_tostring_module
+---@type fun(v: any): string
 tostring = tostring
 
----@class xmake_type_module
+---@type fun(v: any): string
 type = type
-
----@class xmake_print_module
----@param ... any
-function print(...) end
 
 --=============================================================================
 -- Common Aliases for Type Hints
