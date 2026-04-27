@@ -4,4 +4,7 @@ in pkgs.mkShell {
   name = "xmake-emmylua-annotations";
   XMAKE_SOURCE = pkgs.xmake.src;
   EMMYLUA_LS_SOURCE = pkgs.emmylua-ls.src;
+  packages = [
+    pkgs.emmylua-check
+  ];
 }
