@@ -10,4 +10,4 @@ EmmyLua type annotations for the [xmake](https://xmake.io) build system.
 
 ## Usage
 
-Add this repository to your editor's Lua language server library path (`workspace.library`) so that `xmake.lua` files get proper completions and diagnostics.
+Add this repository to your editor's Lua language server library path (`workspace.library`) so that `xmake-emmylua-annotations.lua` files get proper completions and diagnostics.

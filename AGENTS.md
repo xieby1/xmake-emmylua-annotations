@@ -1,6 +1,6 @@
 # AI Agent Guide: Maintaining Xmake EmmyLua Annotations
 
-This guide helps AI agents update the `xmake.lua` EmmyLua type definitions file when xmake adds new APIs or changes existing ones.
+This guide helps AI agents update the `./xmake-emmylua-annotations.lua` EmmyLua type definitions file when xmake adds new APIs or changes existing ones.
 
 ---
 
@@ -10,7 +10,7 @@ This guide helps AI agents update the `xmake.lua` EmmyLua type definitions file 
 | -                     | -                          |
 | **Xmake Source**      | env `${XMAKE_SOURCE}`      |
 | **EmmyLua LS Source** | env `${EMMYLUA_LS_SOURCE}` |
-| **Annotation Output** | `./xmake.lua`              |
+| **Annotation Output** | `./xmake-emmylua-annotations.lua`              |
 
 ---
 
@@ -290,7 +290,7 @@ path = {}
 
 ## Annotation File Structure
 
-The `xmake.lua` file should be organized as follows:
+The `xmake-emmylua-annotations.lua` file should be organized as follows:
 
 ```lua
 ---@meta xmake
@@ -366,7 +366,7 @@ The `xmake.lua` file should be organized as follows:
 When updating the annotation file:
 
 - [ ] Read the scope's `apis()` function in `${XMAKE_SOURCE}/xmake/core/project/*.lua`
-- [ ] Compare with existing annotations in `xmake.lua`
+- [ ] Compare with existing annotations in `xmake-emmylua-annotations.lua`
 - [ ] Identify new APIs added since last update
 - [ ] Identify deprecated/removed APIs
 - [ ] Update type signatures for changed APIs
